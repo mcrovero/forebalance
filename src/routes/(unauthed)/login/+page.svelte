@@ -2,6 +2,7 @@
 
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { authStore } from '$lib/authStore';
 
 	import { firebaseAuth } from '$lib/firebase';
 	import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';

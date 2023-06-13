@@ -1,32 +1,28 @@
-<script>
+<script lang="ts">
 	// Check if firebase is authenticated, if not, redirect to login page
 	import { goto } from '$app/navigation';
 	import { firebaseAuth } from '$lib/firebase';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 
 	import { Avatar, Dropdown, DropdownItem, NavBrand, NavHamburger, Navbar } from 'flowbite-svelte';
 	import '../../app.css';
+	import { authStore } from '$lib/authStore';
 
-	let currentUser = firebaseAuth.currentUser;
 	onMount(() => {
+		console.log('onMount');
 		firebaseAuth.onAuthStateChanged((user) => {
+			$authStore = user;
+			console.log(user);
 			if (!user) {
 				goto('/login');
 			}
-
-			currentUser = user;
 		});
 	});
 
 	let signOut = () => {
-		firebaseAuth
-			.signOut()
-			.then(() => {
-				goto('/login');
-			})
-			.catch((error) => {
-				console.log(error);
-			});
+		firebaseAuth.signOut().catch((error) => {
+			console.log(error);
+		});
 	};
 </script>
 
@@ -41,8 +37,8 @@
 		</NavBrand>
 		<div class="flex md:order-2">
 			<!-- if user is logged in, show avatar and dropdown menu -->
-			{#if currentUser}
-				<Avatar id="avatar-menu" src={currentUser?.photoURL ?? ''} />
+			{#if $authStore}
+				<Avatar id="avatar-menu" src={$authStore?.photoURL ?? ''} />
 				<Dropdown placement="bottom" triggeredBy="#avatar-menu">
 					<DropdownItem on:click={signOut}>Sign out</DropdownItem>
 				</Dropdown>
@@ -52,11 +48,6 @@
 		<Dropdown placement="bottom" triggeredBy="#avatar-menu">
 			<DropdownItem on:click={signOut}>Sign out</DropdownItem>
 		</Dropdown>
-		<!--<NavUl {hidden}>
-			<NavLi href="/about">About</NavLi>
-			<NavLi href="/pricing">Pricing</NavLi>
-			<NavLi href="/faq">FAQ</NavLi>
-		</NavUl>-->
 	</Navbar>
 	<div class="container mx-auto px-4">
 		<slot />

@@ -1,7 +1,7 @@
 <script>
-	import { Button, Input, Label, Modal, Spinner } from 'flowbite-svelte';
 	import { firebaseFirestore } from '$lib/firebase';
-	import { collection, query, orderBy, limit, onSnapshot, addDoc } from 'firebase/firestore';
+	import { addDoc, collection } from 'firebase/firestore';
+	import { Button, Input, Label, Modal, Spinner } from 'flowbite-svelte';
 
 	let formModal = false;
 	let income = true;
@@ -14,7 +14,6 @@
 	let loading = false;
 
 	async function addRecord() {
-		console.log('add record');
 		loading = true;
 		const record = {
 			name,
@@ -22,11 +21,12 @@
 			date,
 			repeat,
 			times,
+			arrived: false,
+			visible: true,
 			income,
 			createdAt: new Date(),
 			updatedAt: new Date()
 		};
-		console.log(record);
 
 		// insert record into firebase
 		const docRef = await addDoc(collection(firebaseFirestore, 'records'), record);

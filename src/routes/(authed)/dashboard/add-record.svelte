@@ -1,6 +1,4 @@
 <script>
-	import { firebaseFirestore } from '$lib/firebase';
-	import { addDoc, collection } from 'firebase/firestore';
 	import { Button, Input, Label, Modal, Spinner } from 'flowbite-svelte';
 
 	let formModal = false;
@@ -28,9 +26,7 @@
 			updatedAt: new Date()
 		};
 
-		// insert record into firebase
-		const docRef = await addDoc(collection(firebaseFirestore, 'records'), record);
-		console.log('Document written with ID: ', docRef.id);
+		// TODO: add record to db
 		loading = false;
 		// close modal
 		formModal = false;

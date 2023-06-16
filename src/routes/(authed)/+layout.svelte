@@ -1,29 +1,8 @@
 <script lang="ts">
-	// Check if firebase is authenticated, if not, redirect to login page
-	import { goto } from '$app/navigation';
-	import { firebaseAuth } from '$lib/firebase';
-	import { onDestroy, onMount } from 'svelte';
+	import { signOut } from '@auth/sveltekit/client';
 
 	import { Avatar, Dropdown, DropdownItem, NavBrand, NavHamburger, Navbar } from 'flowbite-svelte';
 	import '../../app.css';
-	import { authStore } from '$lib/authStore';
-
-	onMount(() => {
-		console.log('onMount');
-		firebaseAuth.onAuthStateChanged((user) => {
-			$authStore = user;
-			console.log(user);
-			if (!user) {
-				goto('/login');
-			}
-		});
-	});
-
-	let signOut = () => {
-		firebaseAuth.signOut().catch((error) => {
-			console.log(error);
-		});
-	};
 </script>
 
 <div class="flex flex-col min-h-screen">
@@ -37,12 +16,11 @@
 		</NavBrand>
 		<div class="flex md:order-2">
 			<!-- if user is logged in, show avatar and dropdown menu -->
-			{#if $authStore}
-				<Avatar id="avatar-menu" src={$authStore?.photoURL ?? ''} />
-				<Dropdown placement="bottom" triggeredBy="#avatar-menu">
-					<DropdownItem on:click={signOut}>Sign out</DropdownItem>
-				</Dropdown>
-			{/if}
+			<Avatar id="avatar-menu" src={''} />
+			<Dropdown placement="bottom" triggeredBy="#avatar-menu">
+				<DropdownItem on:click={signOut}>Sign out</DropdownItem>
+			</Dropdown>
+
 			<NavHamburger on:click={toggle} class1="w-full md:flex md:w-auto md:order-1" />
 		</div>
 		<Dropdown placement="bottom" triggeredBy="#avatar-menu">

@@ -11,5 +11,7 @@ export const load: PageServerLoad = async (event) => {
 		}
 	});
 
+	// TODO: can get token session with:
+	// console.log('authorization', event.cookies.get('next-auth.session-token'));
 	return {};
 };

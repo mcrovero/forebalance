@@ -1,14 +1,14 @@
 import {
+	EMAIL_FROM,
 	GOOGLE_CLIENT_ID,
 	GOOGLE_CLIENT_SECRET,
 	SMTP_HOST,
-	SMTP_PORT,
-	SMTP_USER,
 	SMTP_PASSWORD,
-	EMAIL_FROM
+	SMTP_PORT,
+	SMTP_USER
 } from '$env/static/private';
-import Google from '@auth/core/providers/google';
 import Email from '@auth/core/providers/email';
+import Google from '@auth/core/providers/google';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { SvelteKitAuth } from '@auth/sveltekit';
 import { PrismaClient } from '@prisma/client';

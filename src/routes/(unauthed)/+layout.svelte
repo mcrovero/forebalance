@@ -38,7 +38,7 @@
 		<slot />
 	</div>
 	<!-- footer -->
-	<Footer footerType="logo" class="rounded-lg shadow m-4 dark bg-gray-800">
+	<Footer class="rounded-lg shadow m-4 dark bg-gray-800" footerType="logo">
 		<div class="sm:flex sm:items-center sm:justify-between">
 			<FooterBrand
 				href="https://flowbite.com"

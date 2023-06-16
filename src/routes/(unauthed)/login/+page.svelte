@@ -21,7 +21,7 @@
 					required
 					bind:value={email}
 				/>
-				<Button type="submit">Login with email</Button>
+				<button type="submit">Login with email</button>
 			</form>
 			<div class="inline-flex items-center justify-center w-full">
 				<hr class="w-64 h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />

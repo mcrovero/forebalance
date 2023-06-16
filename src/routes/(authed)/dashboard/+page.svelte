@@ -1,7 +1,5 @@
 <script lang="ts">
 	import AddRecord from './add-record.svelte';
-
-	import { onDestroy } from 'svelte';
 	import { Spinner } from 'flowbite-svelte';
 </script>
 

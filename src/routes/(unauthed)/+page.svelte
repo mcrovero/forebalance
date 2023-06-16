@@ -24,7 +24,7 @@
 			</div>
 		</div>
 		<div class="flex items-center justify-center mt-6 md:mt-0 md:w-1/2">
-			<img class="w-full h-auto" src="/images/landing-page/landing-page-1.png" alt="ForeBalance" />
+			<img class="w-full h-auto" src="/images/landing-page/landing1.png" alt="ForeBalance" />
 		</div>
 	</div>
 	<hr class="my-12 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50" />

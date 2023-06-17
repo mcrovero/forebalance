@@ -2,37 +2,10 @@
 
 import { PrismaClient } from '@prisma/client';
 
-const userData = [
-	{
-		email: 'admin@test.com',
-		name: 'Admin',
-		balances: [
-			{
-				amount: 1000,
-				currency: 'USD',
-				lastUpdated: new Date()
-			}
-		]
-	}
-];
-
 const prisma = new PrismaClient();
 
 async function main() {
 	console.log(`Start seeding ...`);
-
-	for (const p of userData) {
-		const user = await prisma.user.create({
-			data: {
-				name: p.name,
-				email: p.email,
-				balances: {
-					create: p.balances
-				}
-			}
-		});
-		console.log(`Created user with id: ${user.id}`);
-	}
 	console.log(`Seeding finished.`);
 }
 

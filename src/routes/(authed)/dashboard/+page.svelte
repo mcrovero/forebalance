@@ -1,6 +1,7 @@
 <script lang="ts">
-	import AddRecord from './add-record.svelte';
 	import { Spinner } from 'flowbite-svelte';
+
+	export let data;
 </script>
 
 <!-- {#if !loading} -->
@@ -18,5 +19,3 @@
 	</div>
 </div>
 <!--{/if}-->
-
-<AddRecord />

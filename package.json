@@ -12,7 +12,13 @@
 		"test:unit": "vitest",
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
 		"format": "prettier --plugin-search-dir . --write .",
-		"postinstall": "prisma generate"
+		"postinstall": "prisma generate",
+		"prisma": "ts-node --esm prisma/schema.ts",
+		"prisma:generate": "prisma generate",
+		"prisma:migrate": "prisma migrate dev",
+		"prisma:studio": "prisma studio",
+		"prisma:seed": "ts-node --esm prisma/seed.ts",
+		"prisma:reset": "prisma migrate reset --force && prisma migrate dev --name init && ts-node --esm prisma/seed.ts"
 	},
 	"prisma": {
 		"seed": "ts-node --esm prisma/seed.ts"

@@ -22,24 +22,24 @@ model User {
   updatedAt     DateTime  @updatedAt
   balances      Balance[]
   accounts      Account[]
-  Session       Session[]
+  sessions      Session[]
 }
 
 // Schema for the Balance model
 model Balance {
-  id          Int         @id @default(autoincrement())
-  amount      Int
-  currency    String
-  lastUpdated DateTime    @default(now())
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  user        User        @relation(fields: [userId], references: [id])
-  userId      String
-  Record      Record[]
-  Recurrent   Recurrent[]
+  id              Int         @id @default(autoincrement())
+  amount          Int
+  currency        String
+  lastUpdatedDate DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  user            User        @relation(fields: [userId], references: [id])
+  userId          String
+  records         Record[]
+  recurrents      Recurrent[]
 }
 
-// Schema for record with amount, isExpense, description, date, received, autoRecieve, and balanceId
+// Schema for record with amount, isExpense, description, date, received, autoReceive, and balanceId
 model Record {
   id          Int        @id @default(autoincrement())
   amount      Int
@@ -47,7 +47,7 @@ model Record {
   description String?
   date        DateTime
   received    Boolean
-  autoRecieve Boolean
+  autoReceive Boolean    @default(true)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   balance     Balance    @relation(fields: [balanceId], references: [id])
@@ -58,19 +58,19 @@ model Record {
 
 // Model Recurrent with amount, isExpense, description, autoReceive startDate, endDate, frequency, and balanceId
 model Recurrent {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   amount      Int
   isExpense   Boolean
   description String?
-  autoReceive Boolean
+  autoReceive Boolean   @default(true)
   startDate   DateTime
-  endDate     DateTime
-  frequency   String // (never, daily, weekly, monthly, yearly)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  balance     Balance  @relation(fields: [balanceId], references: [id])
+  endDate     DateTime?
+  frequency   String // (weekly, monthly, yearly)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  balance     Balance   @relation(fields: [balanceId], references: [id])
   balanceId   Int
-  Record      Record[]
+  records     Record[]
 }
 
 model Account {

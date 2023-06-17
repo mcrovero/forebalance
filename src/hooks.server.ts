@@ -23,6 +23,7 @@ export const handle = SvelteKitAuth({
 			clientId: GOOGLE_CLIENT_ID,
 			clientSecret: GOOGLE_CLIENT_SECRET
 		}),
+		//@ts-expect-error issue https://github.com/nextauthjs/next-auth/issues/6174
 		Email({
 			server: {
 				host: SMTP_HOST,
@@ -34,5 +35,13 @@ export const handle = SvelteKitAuth({
 			},
 			from: EMAIL_FROM
 		})
-	]
+	],
+	callbacks: {
+		session: async ({ session, user }) => {
+			if (session && user && session.user) {
+				session.user.id = user.id;
+			}
+			return session;
+		}
+	}
 });

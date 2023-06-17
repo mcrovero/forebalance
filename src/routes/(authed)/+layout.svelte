@@ -3,6 +3,8 @@
 
 	import { Avatar, Dropdown, DropdownItem, NavBrand, NavHamburger, Navbar } from 'flowbite-svelte';
 	import '../../app.css';
+
+	export let data;
 </script>
 
 <div class="flex flex-col min-h-screen">
@@ -16,16 +18,11 @@
 		</NavBrand>
 		<div class="flex md:order-2">
 			<!-- if user is logged in, show avatar and dropdown menu -->
-			<Avatar id="avatar-menu" src={''} />
+			<Avatar id="avatar-menu" src={data.user.image ?? ''} />
 			<Dropdown placement="bottom" triggeredBy="#avatar-menu">
 				<DropdownItem on:click={signOut}>Sign out</DropdownItem>
 			</Dropdown>
-
-			<NavHamburger on:click={toggle} class1="w-full md:flex md:w-auto md:order-1" />
 		</div>
-		<Dropdown placement="bottom" triggeredBy="#avatar-menu">
-			<DropdownItem on:click={signOut}>Sign out</DropdownItem>
-		</Dropdown>
 	</Navbar>
 	<div class="container mx-auto px-4">
 		<slot />

@@ -5,13 +5,32 @@ import prisma from '$lib/prisma';
 export const load: PageServerLoad = async (event) => {
 	const session = await event.locals.getSession();
 	if (!session?.user) throw redirect(303, '/login');
-	const user = await prisma.user.findUnique({
+	const userId = session.user.id;
+
+	// get user balances
+	let balances = await prisma.balance.findMany({
 		where: {
-			email: session!.user!.email!
+			userId
 		}
 	});
+	// Create a new balance if none exists
+	if (balances.length === 0) {
+		let balance = await prisma.balance.create({
+			data: {
+				userId,
+				amount: 0,
+				currency: 'USD'
+			}
+		});
+		balances = [balance];
+	}
 
-	// TODO: can get token session with:
-	// console.log('authorization', event.cookies.get('next-auth.session-token'));
-	return {};
+	// if only one balance, redirect to it
+	if (balances.length === 1) {
+		throw redirect(303, `/balances/${balances[0].id}`);
+	}
+
+	return {
+		balances
+	};
 };

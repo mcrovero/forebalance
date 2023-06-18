@@ -47,6 +47,7 @@ model Record {
   description String?
   date        DateTime
   received    Boolean
+  disabled    Boolean    @default(false)
   autoReceive Boolean    @default(true)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -63,6 +64,7 @@ model Recurrent {
   isExpense   Boolean
   description String?
   autoReceive Boolean   @default(true)
+  disabled    Boolean   @default(false)
   startDate   DateTime
   endDate     DateTime?
   frequency   String // (weekly, monthly, yearly)

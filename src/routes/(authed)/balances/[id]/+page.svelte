@@ -50,27 +50,14 @@
 
 	let chart = null;
 	function updateChart() {
-		// Get one record per day
-		let recordsMap = {};
-		for (let record of data.records) {
-			let date = record.date.toISOString().split('T')[0];
-			recordsMap[date] = record.balanceAtRecord;
-		}
-		let records = Object.keys(recordsMap).map((date) => {
-			return {
-				date: new Date(date),
-				balanceAtRecord: recordsMap[date]
-			};
-		});
-
-		chart.data.labels = records.map(
+		chart.data.labels = data.chartData.map(
 			(
 				record: {
 					date: any;
 				} // if precedent record has different year sho
 			) => record.date
 		);
-		chart.data.datasets[0].data = records.map(
+		chart.data.datasets[0].data = data.chartData.map(
 			(record: { balanceAtRecord: any }) => record.balanceAtRecord
 		);
 		chart.update();
@@ -168,11 +155,24 @@
 			<input type="hidden" name="balanceId" value={data.balance.id} />
 			<div>
 				<span>From</span>
-				<Input type="date" name="from" required bind:value={from} />
+				<!-- max value is today -->
+				<Input
+					type="date"
+					name="from"
+					required
+					bind:value={from}
+					max={new Date().toISOString().split('T')[0]}
+				/>
 			</div>
 			<div>
 				<span>To</span>
-				<Input type="date" name="to" required bind:value={to} />
+				<Input
+					type="date"
+					name="to"
+					required
+					bind:value={to}
+					min={new Date().toISOString().split('T')[0]}
+				/>
 			</div>
 			<Button type="submit" outline={true} disabled={isLoading}>Update</Button>
 		</div>
@@ -263,6 +263,39 @@
 			<!-- <TableHeadCell /> -->
 		</TableHead>
 		<TableBody>
+			{#if data.recordsPending.length > 0}
+				<TableHeadCell colspan="4">
+					<div class="mt-4 mb-2 text-lg font-medium text-red-700 dark:text-white">Pending</div>
+				</TableHeadCell>
+			{/if}
+			{#each data.recordsPending as record}
+				<TableBodyRow>
+					<TableBodyCell>
+						<!-- format date as 17 Jun -->
+						{record.date.toLocaleDateString('en-GB', {
+							day: 'numeric',
+							month: 'short'
+						})}
+					</TableBodyCell>
+					<TableBodyCell>
+						{#if record.isExpense}
+							<span class="text-red-500">-{record.amount} {data.balance.currency}</span>
+						{:else}
+							<span class="text-blue-500">+{record.amount} {data.balance.currency}</span>
+						{/if}
+					</TableBodyCell>
+					<TableBodyCell>
+						{record.description}
+					</TableBodyCell>
+					<TableBodyCell>
+						{record.balanceAtRecord}
+					</TableBodyCell>
+					<!-- <TableBodyCell>
+						
+					</TableBodyCell> -->
+				</TableBodyRow>
+			{/each}
+
 			{#each data.records as record}
 				<!-- If record month is different from previous record month then show month -->
 				{#if record.date.getMonth() !== data.records[data.records.indexOf(record) - 1]?.date.getMonth()}

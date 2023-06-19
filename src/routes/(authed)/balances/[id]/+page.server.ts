@@ -72,6 +72,20 @@ async function getRecordsBetweenDates(balanceId: number, start: Date, end: Date)
 	return records;
 }
 
+// function to get all records passed but not received
+async function getRecordsNotReceived(balanceId: number, startDate: Date) {
+	const records = await prisma.record.findMany({
+		where: {
+			balanceId: balanceId,
+			date: {
+				lte: startDate
+			},
+			received: false
+		}
+	});
+	return records;
+}
+
 export const load: PageServerLoad = async (event) => {
 	// get balance id from url
 	const { id } = event.params;
@@ -103,9 +117,20 @@ export const load: PageServerLoad = async (event) => {
 	}
 
 	const records = await getRecordsBetweenDates(balance.id, startDate, endDate);
+	const recordsPending = await getRecordsNotReceived(balance.id, startDate);
 
 	// Add to each record the balance at that moment
 	let currentBalance = balance.amount;
+
+	for (let record of recordsPending) {
+		if (record.isExpense) {
+			currentBalance -= record.amount;
+		} else {
+			currentBalance += record.amount;
+		}
+		record.balanceAtRecord = currentBalance;
+	}
+
 	for (let record of records) {
 		if (record.isExpense) {
 			currentBalance -= record.amount;
@@ -115,10 +140,24 @@ export const load: PageServerLoad = async (event) => {
 		record.balanceAtRecord = currentBalance;
 	}
 
-	console.log('start', startDate, 'end', endDate);
+	// Get one record per day
+	let recordsMap = {};
+	for (let record of records) {
+		let date = record.date.toISOString().split('T')[0];
+		recordsMap[date] = record.balanceAtRecord;
+	}
+	let chartData = Object.keys(recordsMap).map((date) => {
+		return {
+			date: new Date(date),
+			balanceAtRecord: recordsMap[date]
+		};
+	});
+	chartData.sort((a, b) => a.date.getTime() - b.date.getTime());
+	console.log('chartData', chartData);
 	return {
 		balance,
 		records,
+		chartData,
 		from: startDate,
 		to: endDate,
 		totalIncome: records.reduce((acc, record) => {
@@ -132,7 +171,8 @@ export const load: PageServerLoad = async (event) => {
 				acc += record.amount;
 			}
 			return acc;
-		}, 0)
+		}, 0),
+		recordsPending
 	};
 };
 

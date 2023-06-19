@@ -233,6 +233,27 @@ export const actions = {
 			status: 200
 		};
 	},
+	async editRecord({ request, params }) {
+		console.log('editRecord action');
+		const data = await request.formData();
+		const id = data.get('recordId') as string;
+		const disabled = data.get('disabled') as string;
+		console.log('id', id);
+		console.log('disabled', disabled);
+
+		await prisma.record.update({
+			where: {
+				id: Number(id)
+			},
+			data: {
+				disabled: disabled === 'true'
+			}
+		});
+
+		return {
+			status: 200
+		};
+	},
 	async updateDate({ request, params }) {
 		console.log('updateDate action');
 		const data = await request.formData();

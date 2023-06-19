@@ -290,9 +290,7 @@
 					<TableBodyCell>
 						{record.balanceAtRecord}
 					</TableBodyCell>
-					<!-- <TableBodyCell>
-						
-					</TableBodyCell> -->
+					<TableBodyCell />
 				</TableBodyRow>
 			{/each}
 
@@ -329,9 +327,78 @@
 					<TableBodyCell>
 						{record.balanceAtRecord}
 					</TableBodyCell>
-					<!-- <TableBodyCell>
-						
-					</TableBodyCell> -->
+					<TableBodyCell>
+						<!-- recieve icon button check -->
+						<Button class="!p-2"
+							><svg
+								class="w-5 h-5 text-white"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M5 13l4 4L19 7"
+								/>
+							</svg></Button
+						>
+						<!-- view record icon button -->
+						<form action="?/editRecord" method="POST">
+							<input type="hidden" name="recordId" value={record.id} />
+							<input type="hidden" name="disabled" value={!record.disabled} />
+							<Button class="!p-2" type="submit">
+								{#if !record.disabled}
+									<svg
+										class="w-5 h-5 text-white"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+										/>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+										/>
+									</svg>
+								{:else}
+									<svg
+										class="w-5 h-5 text-white"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+										/>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+										/>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M12 6v2m0 8v2m-8-8h2m8 0h2"
+										/>
+									</svg>
+								{/if}
+							</Button>
+						</form>
+					</TableBodyCell>
 				</TableBodyRow>
 			{/each}
 		</TableBody>

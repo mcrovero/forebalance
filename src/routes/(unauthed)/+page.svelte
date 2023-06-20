@@ -33,34 +33,31 @@
 		<Card class="flex flex-col items-center justify-center p-6 mb-4 md:mb-0 md:mr-4">
 			<img class="w-16 h-16 mb-4" src="/icons/track.svg" alt="ForeBalance" />
 			<h3 class="text-xl font-bold leading-tight text-gray-800 dark:text-gray-100">
-				Intelligent expense tracking
+				Visualize Your Financial Future
 			</h3>
 			<p class="mt-4 text-gray-500 dark:text-gray-400">
-				Easily input and categorize your expenses, and let ForeBalance do the rest. With smart
-				algorithms and automated data analysis, you'll gain valuable insights into your spending
-				habits, helping you make informed decisions and stay on top of your financial game.
+				See your financial future at a glance with Forebalance. Plot your income, payments, and
+				projections on an interactive graph.
 			</p>
 		</Card>
 		<Card class="flex flex-col items-center justify-center p-6 mb-4 md:mb-0 md:mr-4">
 			<img class="w-16 h-16 mb-4" src="/icons/graph.svg" alt="ForeBalance" />
 			<h3 class="text-xl font-bold leading-tight text-gray-800 dark:text-gray-100">
-				Smart budgeting
+				Streamline Recurring Payments
 			</h3>
 			<p class="mt-4 text-gray-500 dark:text-gray-400">
-				Set up your budget and let ForeBalance do the rest. With smart algorithms and automated data
-				analysis, you'll gain valuable insights into your spending habits, helping you make informed
-				decisions and stay on top of your financial game.
+				Simplify your life with Forebalance. Effortlessly manage and track recurring payments for
+				bills, rent, and subscriptions.
 			</p>
 		</Card>
 		<Card class="flex flex-col items-center justify-center p-6 mb-4 md:mb-0">
 			<img class="w-16 h-16 mb-4" src="/icons/time.svg" alt="ForeBalance" />
 			<h3 class="text-xl font-bold leading-tight text-gray-800 dark:text-gray-100">
-				Powerful reporting
+				Track and Analyze Your Financial History
 			</h3>
 			<p class="mt-4 text-gray-500 dark:text-gray-400">
-				Set up your budget and let ForeBalance do the rest. With smart algorithms and automated data
-				analysis, you'll gain valuable insights into your spending habits, helping you make informed
-				decisions and stay on top of your financial game.
+				Gain insights from your past records with Forebalance. Track transactions and spending
+				patterns to make better financial decisions.
 			</p>
 		</Card>
 	</div>
@@ -101,19 +98,13 @@
 			<Accordion>
 				<AccordionItem>
 					<span slot="header">Is my financial data safe with ForeBalance?</span>
-					<p>
-						Yes. ForeBalance uses bank-level security to ensure that your data is safe and secure.
-						We use 256-bit SSL encryption and read-only access to your financial accounts. We never
-						store your bank credentials, and we never share your personal information with third
-						parties.
-					</p>
+					<p>Yes.</p>
 				</AccordionItem>
 				<AccordionItem>
 					<span slot="header">Can ForeBalance handle recurring expenses and income?</span>
 					<p>
 						Yes. ForeBalance can handle recurring expenses and income. You can set up recurring
-						transactions to automatically repeat at a specified interval. You can also set up
-						recurring transfers between accounts.
+						transactions to automatically repeat at a specified interval.
 					</p>
 				</AccordionItem>
 				<AccordionItem>
@@ -121,15 +112,14 @@
 					<p>
 						Yes. ForeBalance can be used to manage your business finances. You can set up multiple
 						accounts for your business, and you can set up recurring transactions to automatically
-						repeat at a specified interval. You can also set up recurring transfers between
-						accounts.
+						repeat at a specified interval.
 					</p>
 				</AccordionItem>
 				<AccordionItem>
 					<span slot="header">Does ForeBalance offer mobile apps?</span>
 					<p>
-						Yes. ForeBalance offers mobile apps for iOS and Android. You can download the iOS app
-						from the App Store, and you can download the Android app from the Google Play Store.
+						We are working on mobile apps for iOS and Android. We will notify you when they are
+						available.
 					</p>
 				</AccordionItem>
 			</Accordion>

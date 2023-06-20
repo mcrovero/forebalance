@@ -18,7 +18,8 @@
 		"prisma:migrate": "prisma migrate dev",
 		"prisma:studio": "prisma studio",
 		"prisma:seed": "ts-node --esm prisma/seed.ts",
-		"prisma:reset": "prisma migrate reset --force && prisma migrate dev --name init && ts-node --esm prisma/seed.ts"
+		"prisma:reset": "prisma migrate reset --force && prisma migrate dev --name init && ts-node --esm prisma/seed.ts",
+		"prisma:deploy": "prisma migrate deploy"
 	},
 	"prisma": {
 		"seed": "ts-node --esm prisma/seed.ts"

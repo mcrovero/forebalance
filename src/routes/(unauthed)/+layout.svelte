@@ -25,13 +25,14 @@
 			>
 		</NavBrand>
 		<div class="flex md:order-2">
+			<NavUl class="hidden md:flex">
+				<NavLi href="/pricing">Pricing</NavLi>
+			</NavUl>
 			<Button size="sm" href="/dashboard">Get started</Button>
 			<NavHamburger on:click={toggle} />
 		</div>
-		<NavUl {hidden}>
-			<NavLi href="/about">About</NavLi>
+		<NavUl class="md:hidden" {hidden}>
 			<NavLi href="/pricing">Pricing</NavLi>
-			<NavLi href="/faq">FAQ</NavLi>
 		</NavUl>
 	</Navbar>
 	<div class="container mx-auto px-4">

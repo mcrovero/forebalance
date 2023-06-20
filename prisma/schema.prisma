@@ -20,6 +20,8 @@ model User {
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  premium       String?
+  premiumUntil  DateTime?
   balances      Balance[]
   accounts      Account[]
   sessions      Session[]

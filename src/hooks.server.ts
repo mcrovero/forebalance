@@ -40,6 +40,7 @@ export const handle = SvelteKitAuth({
 		session: async ({ session, user }) => {
 			if (session && user && session.user) {
 				session.user.id = user.id;
+				session.user.premium = user.premium;
 			}
 			return session;
 		}

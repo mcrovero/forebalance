@@ -1,5 +1,5 @@
 <script>
-	import { Accordion, AccordionItem, Button, Card } from 'flowbite-svelte';
+	import { Accordion, AccordionItem, Button, Card, DeviceMockup } from 'flowbite-svelte';
 </script>
 
 <!-- landing page first block, 2 columns one with Title, description and CTA and one column with the app screen -->
@@ -8,7 +8,7 @@
 		<!-- padding top bottom if in desktop -->
 		<div class="flex flex-col md:w-1/2 md:pt-32">
 			<h1 class="text-5xl font-bold leading-tight text-gray-800 dark:text-gray-100">
-				Achieve Financial peace of mind with ForeBalance
+				Achieve financial peace of mind with ForeBalance
 			</h1>
 			<p class="mt-4 text-gray-500 dark:text-gray-400">
 				The ultimate financial management solution designed to empower individuals and businesses to
@@ -29,7 +29,7 @@
 	</div>
 	<hr class="my-12 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50" />
 	<!-- second block, 3 cards with icons, title and description -->
-	<div class="flex flex-col md:flex-row">
+	<div class="flex flex-col md:flex-row items-center">
 		<Card class="flex flex-col items-center justify-center p-6 mb-4 md:mb-0 md:mr-4">
 			<img class="w-16 h-16 mb-4" src="/icons/track.svg" alt="ForeBalance" />
 			<h3 class="text-xl font-bold leading-tight text-gray-800 dark:text-gray-100">
@@ -68,12 +68,18 @@
 	<!-- third block, 2 columns one with the app screen and one with title, description and CTA -->
 	<div
 		style="background-color: #F6F6F6;"
-		class="flex flex-col md:flex-row mt-12 rounded-lg p-10 gap-10 items-center"
+		class="flex flex-col lg:flex-row mt-12 rounded-lg p-10 gap-10 items-center lg:items-stretch justify-center"
 	>
-		<div class="flex items-center justify-center mt-6 md:mt-0 md:w-1/2">
-			<img class="w-full h-auto m-20" src="/images/graph.svg" alt="ForeBalance" />
+		<div class="mt-8">
+			<DeviceMockup device="laptop">
+				<img
+					src="images/landing-page/landing2.png"
+					class="dark:hidden h-[156px] md:h-[278px] w-full rounded-xl"
+					alt="laptop example 1"
+				/>
+			</DeviceMockup>
 		</div>
-		<div class="flex flex-col md:w-1/2">
+		<div class="flex flex-col w-full lg:w-1/2">
 			<h1 class="text-4xl font-bold leading-tight text-gray-800 dark:text-gray-100">
 				Unlock Financial Success: Project Your Future Finances and Take Control Today
 			</h1>

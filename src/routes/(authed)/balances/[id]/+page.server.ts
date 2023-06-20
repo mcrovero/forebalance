@@ -4,14 +4,14 @@ import prisma from '$lib/prisma';
 import type { PageServerLoad } from './$types';
 
 async function getRecordsBetweenDates(balanceId: number, start: Date, end: Date) {
-	console.log('getRecordsBetweenDates', balanceId, start, end);
 	const records = await prisma.record.findMany({
 		where: {
 			balanceId: balanceId,
 			date: {
 				gte: start,
 				lte: end
-			}
+			},
+			received: false
 		}
 	});
 	const recurrents = await prisma.recurrent.findMany({
@@ -38,19 +38,21 @@ async function getRecordsBetweenDates(balanceId: number, start: Date, end: Date)
 		while (startDate <= (endDate ?? end)) {
 			// Copy date because it's a reference and will change in the next iteration
 			const date = new Date(startDate);
-			records.push({
-				id: -1,
-				amount,
-				isExpense,
-				description,
-				date,
-				received: false,
-				autoReceive,
-				balanceId,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-				recurrentId: recurrent.id
-			});
+			if (startDate >= start) {
+				records.push({
+					id: -1,
+					amount,
+					isExpense,
+					description,
+					date,
+					received: false,
+					autoReceive,
+					balanceId,
+					createdAt: new Date(),
+					updatedAt: new Date(),
+					recurrentId: recurrent.id
+				});
+			}
 			switch (frequency) {
 				case 'daily':
 					startDate.setDate(startDate.getDate() + 1);
@@ -78,7 +80,7 @@ async function getRecordsNotReceived(balanceId: number, startDate: Date) {
 		where: {
 			balanceId: balanceId,
 			date: {
-				lte: startDate
+				lt: startDate
 			},
 			received: false
 		}
@@ -92,7 +94,6 @@ export const load: PageServerLoad = async (event) => {
 	// get end date from url
 	const from = event.url.searchParams.get('from');
 	const to = event.url.searchParams.get('to');
-	console.log('from', from, 'to', to);
 
 	// Get balance from db
 	const balance = await prisma.balance.findUnique({
@@ -123,25 +124,31 @@ export const load: PageServerLoad = async (event) => {
 	let currentBalance = balance.amount;
 
 	for (let record of recordsPending) {
-		if (record.isExpense) {
-			currentBalance -= record.amount;
-		} else {
-			currentBalance += record.amount;
+		if (!record.disabled) {
+			if (record.isExpense) {
+				currentBalance -= record.amount;
+			} else {
+				currentBalance += record.amount;
+			}
 		}
 		record.balanceAtRecord = currentBalance;
 	}
 
 	for (let record of records) {
-		if (record.isExpense) {
-			currentBalance -= record.amount;
-		} else {
-			currentBalance += record.amount;
+		if (!record.disabled) {
+			if (record.isExpense) {
+				currentBalance -= record.amount;
+			} else {
+				currentBalance += record.amount;
+			}
 		}
 		record.balanceAtRecord = currentBalance;
 	}
 
 	// Get one record per day
-	let recordsMap = {};
+	let recordsMap = {
+		[startDate.toISOString().split('T')[0]]: balance.amount
+	};
 	for (let record of records) {
 		let date = record.date.toISOString().split('T')[0];
 		recordsMap[date] = record.balanceAtRecord;
@@ -153,7 +160,6 @@ export const load: PageServerLoad = async (event) => {
 		};
 	});
 	chartData.sort((a, b) => a.date.getTime() - b.date.getTime());
-	console.log('chartData', chartData);
 	return {
 		balance,
 		records,
@@ -236,19 +242,38 @@ export const actions = {
 	async editRecord({ request, params }) {
 		console.log('editRecord action');
 		const data = await request.formData();
-		const id = data.get('recordId') as string;
-		const disabled = data.get('disabled') as string;
-		console.log('id', id);
-		console.log('disabled', disabled);
+		const id = data.has('recordId') ? (data.get('recordId') as string) : undefined;
+		const recurrentId = data.has('recurrentId') ? (data.get('recurrentId') as string) : undefined;
+		const disabled = data.has('disabled') ? (data.get('disabled') as string) : undefined;
+		const isExpense = data.has('is-expense') ? (data.get('is-expense') as string) : undefined;
+		const description = data.has('description') ? (data.get('description') as string) : undefined;
+		const date = data.has('date') ? (data.get('date') as string) : undefined;
+		const amount = data.has('amount') ? (data.get('amount') as string) : undefined;
+		const autoReceive = data.has('auto-receive') ? (data.get('auto-receive') as string) : undefined;
 
-		await prisma.record.update({
-			where: {
-				id: Number(id)
-			},
-			data: {
-				disabled: disabled === 'true'
-			}
-		});
+		let updatedRecord: any = {};
+		if (disabled !== undefined) updatedRecord['disabled'] = disabled === 'true';
+		if (isExpense !== undefined) updatedRecord['isExpense'] = isExpense === 'true';
+		if (description !== undefined) updatedRecord['description'] = description;
+		if (date !== undefined) updatedRecord['date'] = new Date(date);
+		if (amount !== undefined) updatedRecord['amount'] = Number(amount);
+		if (autoReceive !== undefined) updatedRecord['autoReceive'] = autoReceive === 'on';
+
+		if (recurrentId) {
+			await prisma.recurrent.update({
+				where: {
+					id: Number(recurrentId)
+				},
+				data: updatedRecord
+			});
+		} else {
+			await prisma.record.update({
+				where: {
+					id: Number(id)
+				},
+				data: updatedRecord
+			});
+		}
 
 		return {
 			status: 200
@@ -277,6 +302,72 @@ export const actions = {
 				amount: Number(amount)
 			}
 		});
+
+		return {
+			status: 200
+		};
+	},
+	async receiveRecord({ request, params }) {
+		console.log('receiveRecord action');
+		const data = await request.formData();
+		const id = data.get('recordId') as string;
+
+		var record = await prisma.record.update({
+			where: {
+				id: Number(id)
+			},
+			data: {
+				received: true
+			}
+		});
+
+		// update balance
+		var balance = await prisma.balance.findUnique({
+			where: {
+				id: record.balanceId
+			}
+		});
+
+		if (balance === null) return fail(400, { missing: 'Balance not found' });
+
+		if (record.isExpense) {
+			balance.amount -= record.amount;
+		} else {
+			balance.amount += record.amount;
+		}
+
+		await prisma.balance.update({
+			where: {
+				id: balance.id
+			},
+			data: {
+				amount: balance.amount
+			}
+		});
+
+		return {
+			status: 200
+		};
+	},
+	async deleteRecord({ request, params }) {
+		console.log('deleteRecord action');
+		const data = await request.formData();
+		const id = data.get('recordId') as string;
+		const recurrentId = data.get('recurrentId') as string;
+
+		if (recurrentId) {
+			await prisma.recurrent.delete({
+				where: {
+					id: Number(recurrentId)
+				}
+			});
+		} else {
+			await prisma.record.delete({
+				where: {
+					id: Number(id)
+				}
+			});
+		}
 
 		return {
 			status: 200

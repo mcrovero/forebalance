@@ -13,18 +13,22 @@ datasource db {
 
 // Schema for the User model
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  emailVerified DateTime?
-  name          String?
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  premium       String?
-  premiumUntil  DateTime?
-  balances      Balance[]
-  accounts      Account[]
-  sessions      Session[]
+  id                       String    @id @default(cuid())
+  email                    String    @unique
+  emailVerified            DateTime?
+  name                     String?
+  image                    String?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+  premium                  String?
+  premiumUntil             DateTime?
+  stripeSessionId          String?   @unique @default(cuid())
+  stripeCustomerId         String?   @unique @default(cuid())
+  stripeSubscriptionId     String?   @unique @default(cuid())
+  stripeSubscriptionStatus String?
+  balances                 Balance[]
+  accounts                 Account[]
+  sessions                 Session[]
 }
 
 // Schema for the Balance model

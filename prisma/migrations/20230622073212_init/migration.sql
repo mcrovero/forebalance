@@ -7,8 +7,17 @@ CREATE TABLE `User` (
     `image` VARCHAR(191) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
+    `premium` VARCHAR(191) NULL,
+    `premiumUntil` DATETIME(3) NULL,
+    `stripeSessionId` VARCHAR(191) NULL,
+    `stripeCustomerId` VARCHAR(191) NULL,
+    `stripeSubscriptionId` VARCHAR(191) NULL,
+    `stripeSubscriptionStatus` VARCHAR(191) NULL,
 
     UNIQUE INDEX `User_email_key`(`email`),
+    UNIQUE INDEX `User_stripeSessionId_key`(`stripeSessionId`),
+    UNIQUE INDEX `User_stripeCustomerId_key`(`stripeCustomerId`),
+    UNIQUE INDEX `User_stripeSubscriptionId_key`(`stripeSubscriptionId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

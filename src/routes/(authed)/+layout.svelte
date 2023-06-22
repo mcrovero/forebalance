@@ -7,7 +7,6 @@
 		Dropdown,
 		DropdownItem,
 		NavBrand,
-		NavHamburger,
 		Navbar
 	} from 'flowbite-svelte';
 	import Star from 'svelte-material-icons/Star.svelte';
@@ -36,6 +35,9 @@
 			<!-- if user is logged in, show avatar and dropdown menu -->
 			<Avatar id="avatar-menu" src={data.user.image ?? ''} />
 			<Dropdown placement="bottom" triggeredBy="#avatar-menu">
+				<form action="/upgrade/portal" method="post">
+					<DropdownItem type="submit">Manage subscription</DropdownItem>
+				</form>
 				<DropdownItem on:click={signOut}>Sign out</DropdownItem>
 			</Dropdown>
 		</div>

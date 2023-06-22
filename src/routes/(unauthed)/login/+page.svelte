@@ -4,7 +4,9 @@
 	let email: string;
 
 	import { signIn } from '@auth/sveltekit/client';
-	import { Button, Card, Hr } from 'flowbite-svelte';
+	import { Card } from 'flowbite-svelte';
+
+	export let data;
 </script>
 
 <!-- center column for access with just email or google or facebook-->
@@ -13,7 +15,11 @@
 		<h1 class="text-4xl font-bold text-gray-800">Login</h1>
 
 		<div class="flex flex-col gap-4 mt-8">
-			<form on:submit|preventDefault={() => signIn('email', { email })} class="flex flex-col gap-4">
+			<form
+				on:submit|preventDefault={() =>
+					signIn('email', { email, callbackUrl: `${window.location.origin}${data.redirect}` })}
+				class="flex flex-col gap-4"
+			>
 				<input
 					type="email"
 					placeholder="Email"
@@ -31,7 +37,10 @@
 				>
 			</div>
 			<button
-				on:click|preventDefault={() => signIn('google')}
+				on:click|preventDefault={() =>
+					signIn('google', {
+						callbackUrl: `${window.location.origin}${data.redirect}`
+					})}
 				class="flex items-center bg-white border border-gray-300 rounded-lg shadow-md px-6 py-2 text-sm font-medium text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
 			>
 				<svg

@@ -51,10 +51,33 @@
 			<FooterLinkGroup
 				ulClass="flex flex-wrap items-center mb-6 text-sm text-gray-500 sm:mb-0 dark:text-gray-400"
 			>
-				<FooterLink href="/">About</FooterLink>
-				<FooterLink href="/">Privacy Policy</FooterLink>
-				<FooterLink href="/">Licensing</FooterLink>
-				<FooterLink href="/">Contact</FooterLink>
+				<FooterLink href="/pricing">Pricing</FooterLink>
+				<FooterLink href="/contact">Contact</FooterLink>
+				<FooterLink href="/tos">Terms of Service</FooterLink>
+				<a
+					href="https://www.iubenda.com/privacy-policy/80584291"
+					class="iubenda-black iubenda-noiframe iubenda-embed iubenda-noiframe"
+					title="Privacy Policy"
+				>
+					Privacy Policy
+				</a>
+				<script type="text/javascript">
+					(function (w, d) {
+						var loader = function () {
+							var s = d.createElement('script'),
+								tag = d.getElementsByTagName('script')[0];
+							s.src = 'https://cdn.iubenda.com/iubenda.js';
+							tag.parentNode.insertBefore(s, tag);
+						};
+						if (w.addEventListener) {
+							w.addEventListener('load', loader, false);
+						} else if (w.attachEvent) {
+							w.attachEvent('onload', loader);
+						} else {
+							w.onload = loader;
+						}
+					})(window, document);
+				</script>
 			</FooterLinkGroup>
 		</div>
 		<hr class="my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />

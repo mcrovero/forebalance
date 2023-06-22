@@ -86,7 +86,7 @@
 						</Feature>
 					</li>
 				</ul>
-				<Button size="sm" href="/dashboard">Upgrade</Button>
+				<Button size="sm" href="/upgrade/choose/starter">Upgrade</Button>
 			</div>
 			<!-- Pricing Card -->
 			<div
@@ -123,7 +123,7 @@
 						</Feature>
 					</li>
 				</ul>
-				<Button size="sm" href="/dashboard">Upgrade</Button>
+				<Button size="sm" href="/upgrade/choose/advanced">Upgrade</Button>
 			</div>
 		</div>
 	</div>

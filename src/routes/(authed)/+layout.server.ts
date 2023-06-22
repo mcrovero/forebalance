@@ -3,7 +3,14 @@ import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async (event) => {
 	const session = await event.locals.getSession();
-	if (!session?.user) throw redirect(303, '/login');
+	const plan = event.params.plan;
+
+	if (!session?.user) {
+		if (plan) {
+			throw redirect(303, `/login/?redirect=/upgrade/choose/${plan}`);
+		}
+		throw redirect(303, '/login');
+	}
 	return {
 		user: session.user
 	};

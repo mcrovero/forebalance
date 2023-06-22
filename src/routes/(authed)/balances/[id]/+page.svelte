@@ -6,6 +6,8 @@
 		Card,
 		Hr,
 		Input,
+		Label,
+		Star,
 		Table,
 		TableBody,
 		TableHead,
@@ -43,18 +45,26 @@
 	>
 		<div class="flex flex-col gap-4 items-stretch md:flex-row md:justify-end md:items-end">
 			<input type="hidden" name="balanceId" value={data.balance.id} />
-			<div>
-				<span>From</span>
-				<!-- max value is today -->
+			<Label class="space-y-2">
+				<div class="flex flex-row items-center justify-start">
+					{#if data.user.premium === 0}
+						<Star class="text-blue-500" />
+					{/if}
+					<span>From</span>
+					<!--Premium feature-->
+				</div>
+				<!-- on hover show tooltip with info that this is a premium feature -->
 				<Input
+					disabled={data.user.premium === 0}
 					type="date"
 					name="from"
 					required
 					bind:value={from}
 					max={new Date().toISOString().split('T')[0]}
+					alt="This is a premium feature"
 				/>
-			</div>
-			<div>
+			</Label>
+			<Label class="space-y-2">
 				<span>To</span>
 				<Input
 					type="date"
@@ -63,7 +73,7 @@
 					bind:value={to}
 					min={new Date().toISOString().split('T')[0]}
 				/>
-			</div>
+			</Label>
 			<Button type="submit" outline={true} disabled={isLoading}>Update</Button>
 		</div>
 	</form>
@@ -151,18 +161,32 @@
 			<TableHeadCell />
 		</TableHead>
 		<TableBody>
+			{#each data.previousRecords as record}
+				<!-- If record month is different from previous record month then show month -->
+				{#if record.date.getMonth() !== data.previousRecords[data.previousRecords.indexOf(record) - 1]?.date.getMonth()}
+					<TableHeadCell colspan="5" class="bg-gray-100 dark:bg-gray-800">
+						<div class="mt-4 mb-2 text-lg font-medium text-gray-900 dark:text-white">
+							{record.date.toLocaleDateString('en-GB', {
+								month: 'long',
+								year: 'numeric'
+							})}
+						</div>
+					</TableHeadCell>
+				{/if}
+				<Row {record} balance={data.balance} isHistory={true} />
+			{/each}
 			{#if data.recordsPending.length > 0}
-				<TableHeadCell colspan="4">
-					<div class="mt-4 mb-2 text-lg font-medium text-red-700 dark:text-white">Pending</div>
+				<TableHeadCell colspan="5" class="bg-yellow-100 dark:bg-yellow-800">
+					<div class="mt-4 mb-2 text-lg font-medium text-black">Pending</div>
 				</TableHeadCell>
 			{/if}
 			{#each data.recordsPending as record}
-				<Row {record} balance={data.balance} />
+				<Row {record} balance={data.balance} isPending={true} />
 			{/each}
 
-			{#each data.records as record}
+			{#each data.nextRecords as record}
 				<!-- If record month is different from previous record month then show month -->
-				{#if record.date.getMonth() !== data.records[data.records.indexOf(record) - 1]?.date.getMonth()}
+				{#if record.date.getMonth() !== data.nextRecords[data.nextRecords.indexOf(record) - 1]?.date.getMonth()}
 					<TableHeadCell colspan="4">
 						<div class="mt-4 mb-2 text-lg font-medium text-gray-900 dark:text-white">
 							{record.date.toLocaleDateString('en-GB', {
@@ -178,4 +202,4 @@
 	</Table>
 </div>
 
-<AddRecord balance={data.balance} bind:showModal />
+<AddRecord balance={data.balance} bind:showModal premium={data.user.premium} />

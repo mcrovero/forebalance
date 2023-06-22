@@ -1,12 +1,16 @@
 <!-- src/routes/login/+page.svelte -->
 
 <script lang="ts">
+	import { enhance } from '$app/forms';
+
 	let email: string;
 
 	import { signIn } from '@auth/sveltekit/client';
-	import { Card } from 'flowbite-svelte';
+	import { Button, Card } from 'flowbite-svelte';
 
 	export let data;
+
+	let loading = false;
 </script>
 
 <!-- center column for access with just email or google or facebook-->
@@ -16,8 +20,19 @@
 
 		<div class="flex flex-col gap-4 mt-8">
 			<form
-				on:submit|preventDefault={() =>
-					signIn('email', { email, callbackUrl: `${window.location.origin}${data.redirect}` })}
+				on:submit|preventDefault={async () => {
+					loading = true;
+					try {
+						await signIn('email', {
+							email,
+							callbackUrl: `${window.location.origin}${data.redirect}`
+						});
+					} catch (e) {
+						console.log(e);
+					} finally {
+						loading = false;
+					}
+				}}
 				class="flex flex-col gap-4"
 			>
 				<input
@@ -27,7 +42,7 @@
 					required
 					bind:value={email}
 				/>
-				<button type="submit">Login with email</button>
+				<Button type="submit" color="primary" size="sm" disabled={loading}>Login with email</Button>
 			</form>
 			<div class="inline-flex items-center justify-center w-full">
 				<hr class="w-64 h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />

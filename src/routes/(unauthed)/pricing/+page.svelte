@@ -1,17 +1,24 @@
-<script>
+<script lang="ts">
 	import { Button } from 'flowbite-svelte';
 	import Feature from './feature.svelte';
+
+	export let data: any;
+
+	const { user } = data;
+
+	const alreadyPremium = user && user.premium > 0;
 </script>
 
 <section class="bg-white dark:bg-gray-900">
 	<div class="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">
 		<div class="mx-auto max-w-screen-md text-center mb-8 lg:mb-12">
 			<h2 class="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">
-				Designed for business teams like yours
+				Choose Your Plan: Empower Your Financial Journey with ForeBalance
 			</h2>
 			<p class="mb-5 font-light text-gray-500 sm:text-xl dark:text-gray-400">
-				Here at Flowbite we focus on markets where technology, innovation, and capital can unlock
-				long-term value and drive economic growth.
+				Our pricing options are designed to meet your unique financial management needs. Whether
+				you're looking for essential features or advanced functionalities, ForeBalance has the right
+				plan for you.
 			</p>
 		</div>
 		<div class="space-y-8 lg:grid lg:grid-cols-3 sm:gap-6 xl:gap-10 lg:space-y-0">
@@ -27,7 +34,7 @@
 					<span class="mr-2 text-5xl font-extrabold">Free</span>
 				</div>
 				<!-- List -->
-				<ul role="list" class="mb-8 space-y-4 text-left">
+				<ul class="mb-8 space-y-4 text-left">
 					<li class="flex items-center space-x-3">
 						<Feature enabled={true}>
 							<span>Graphical Balance Tracking</span>
@@ -64,7 +71,7 @@
 					<span class="text-gray-500 dark:text-gray-400">/month</span>
 				</div>
 				<!-- List -->
-				<ul role="list" class="mb-8 space-y-4 text-left">
+				<ul class="mb-8 space-y-4 text-left">
 					<li class="flex items-center space-x-3">
 						<Feature enabled={true}>
 							<span>Everything in <b>Free</b></span>
@@ -86,7 +93,14 @@
 						</Feature>
 					</li>
 				</ul>
-				<Button size="sm" href="/upgrade/choose/starter">Upgrade</Button>
+
+				<Button size="sm" href="/upgrade/choose/starter">
+					{#if alreadyPremium}
+						Manage
+					{:else}
+						Upgrade
+					{/if}
+				</Button>
 			</div>
 			<!-- Pricing Card -->
 			<div
@@ -101,7 +115,7 @@
 					<span class="text-gray-500 dark:text-gray-400">/month</span>
 				</div>
 				<!-- List -->
-				<ul role="list" class="mb-8 space-y-4 text-left">
+				<ul class="mb-8 space-y-4 text-left">
 					<li class="flex items-center space-x-3">
 						<Feature enabled={true}>
 							<span>Everything in <b>Starter</b></span>
@@ -123,7 +137,14 @@
 						</Feature>
 					</li>
 				</ul>
-				<Button size="sm" href="/upgrade/choose/advanced">Upgrade</Button>
+
+				<Button size="sm" href="/upgrade/choose/advanced">
+					{#if alreadyPremium}
+						Manage
+					{:else}
+						Upgrade
+					{/if}
+				</Button>
 			</div>
 		</div>
 	</div>

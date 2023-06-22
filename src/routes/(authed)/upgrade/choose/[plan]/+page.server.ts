@@ -17,7 +17,7 @@ export const load: PageServerLoad = async (event) => {
 	if (!user) throw redirect(303, '/login');
 
 	// check if user already has a subscription
-	if (user.stripeSubscriptionId) {
+	if (user.stripeSubscriptionStatus) {
 		const portalSession = await createPortalSession(user.stripeCustomerId);
 		throw redirect(303, portalSession.url);
 	}

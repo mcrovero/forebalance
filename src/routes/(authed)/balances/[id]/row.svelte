@@ -19,19 +19,30 @@
 		disabled: false,
 		isExpense: false,
 		recurrentId: null,
-		autoReceive: false
+		autoReceive: false,
+		received: false
 	};
 
 	export let balance = {
 		currency: 'EUR'
 	};
 
+	export let isHistory = false;
+	export let isPending = false;
+
 	let popupReceiveModal = false;
 	let popupEditRecordModal = false;
+
+	let classRow = 'hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer';
+	if (isPending) {
+		classRow = 'bg-yellow-100 dark:bg-yellow-800 cursor-pointer hover:bg-yellow-200 dark:hover:bg-yellow-700';
+	} else if (isHistory) {
+		classRow = 'bg-gray-100 dark:bg-gray-800 cursor-pointer';
+	}
 </script>
 
 <TableBodyRow
-	class="hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+	class={classRow}
 	on:click={() => {
 		popupEditRecordModal = true;
 	}}
@@ -63,7 +74,7 @@
 	<TableBodyCell class="flex flex-row justify-end space-x-2">
 		{#if record.recurrentId}
 			<AvTimer class="w-5 h-5 text-primary-500" />
-		{:else}
+		{:else if !record.received}
 			<!-- recieve icon button check -->
 			<Button
 				class="!p-2"
@@ -75,7 +86,6 @@
 			>
 				<Check class="w-5 h-5 text-white" />
 			</Button>
-
 			<!-- view record icon button -->
 			<form action="?/editRecord" method="POST" use:enhance>
 				<input type="hidden" name="recordId" value={record.id} />

@@ -40,19 +40,19 @@ export async function POST({ request }) {
 			break;
 		case 'customer.subscription.updated':
 			// Update user's premium tier
-			let premiumTier = 'free';
+			let premiumTier;
 			switch (event.data.object.plan.id) {
 				case STRIPE_PLAN_STARTER:
-					premiumTier = 'starter';
+					premiumTier = 1;
 					break;
 				case STRIPE_PLAN_ADVANCED:
-					premiumTier = 'advanced';
+					premiumTier = 2;
 					break;
 				default:
-					premiumTier = 'free';
+					premiumTier = 0;
 					break;
 			}
-			if (event.data.object.status !== 'active') premiumTier = 'free';
+			if (event.data.object.status !== 'active') premiumTier = 0;
 
 			// Subscription was updated
 			await prisma.user.update({

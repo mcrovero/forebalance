@@ -5,7 +5,7 @@ declare module '@auth/core/types' {
 		user: {
 			id: string;
 			role: string;
-			premium: boolean;
+			premium: int;
 		} & DefaultSession['user'];
 	}
 }

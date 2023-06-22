@@ -17,7 +17,10 @@
 		currency: 'EUR'
 	};
 
+	export let premium = 0;
 	export let showModal = false;
+
+	let recurrentEnabled = premium > 0;
 
 	// If repeat is never then disable endDate
 	$: if (repeat === 'never' || noEndDate === true) {
@@ -94,13 +97,21 @@
 			</Label>
 			<Label class="space-y-2">
 				<span>Repeat? </span>
-				<Select name="repeat" bind:value={repeat}>
+				<Select name="repeat" bind:value={repeat} disabled={!recurrentEnabled}>
 					<option value="never">Never</option>
 					<option value="weekly">Weekly</option>
 					<option value="monthly">Monthly</option>
 					<option value="yearly">Yearly</option>
 				</Select>
 			</Label>
+
+			{#if !recurrentEnabled}
+				<span class="text-sm text-gray-500"
+					>Do you need to repeat this payment?
+					<a href="/pricing" class="text-blue-500">Upgrade</a> to Starter or Advanced to unlock this
+					feature.</span
+				>
+			{/if}
 			<Label class="space-y-2">
 				{#if repeat !== 'never'}
 					<span>Till when? </span>
@@ -109,7 +120,7 @@
 						name="end-date"
 						placeholder="1000"
 						bind:value={endDate}
-						disabled={repeat === 'never' || noEndDate}
+						disabled={repeat === 'never' || noEndDate || !recurrentEnabled}
 					/>
 					<Checkbox
 						type="checkbox"

@@ -3,7 +3,14 @@ import { fail, redirect } from '@sveltejs/kit';
 import prisma from '$lib/prisma';
 import type { PageServerLoad } from './$types';
 
-async function getRecordsBetweenDates(balanceId: number, start: Date, end: Date) {
+async function getRecordsBetweenDates(
+	balanceId: number,
+	start: Date,
+	end: Date,
+	withRecurrent = true,
+	received = false
+) {
+	console.log('getRecordsBetweenDates', start, end, withRecurrent, received);
 	const records = await prisma.record.findMany({
 		where: {
 			balanceId: balanceId,
@@ -11,9 +18,13 @@ async function getRecordsBetweenDates(balanceId: number, start: Date, end: Date)
 				gte: start,
 				lte: end
 			},
-			received: false
+			received
+		},
+		orderBy: {
+			date: 'asc'
 		}
 	});
+	if (!withRecurrent) return records;
 	const recurrents = await prisma.recurrent.findMany({
 		where: {
 			balanceId: balanceId,
@@ -48,6 +59,7 @@ async function getRecordsBetweenDates(balanceId: number, start: Date, end: Date)
 					received: false,
 					autoReceive,
 					balanceId,
+					disabled: false,
 					createdAt: new Date(),
 					updatedAt: new Date(),
 					recurrentId: recurrent.id
@@ -74,25 +86,17 @@ async function getRecordsBetweenDates(balanceId: number, start: Date, end: Date)
 	return records;
 }
 
-// function to get all records passed but not received
-async function getRecordsNotReceived(balanceId: number, startDate: Date) {
-	const records = await prisma.record.findMany({
-		where: {
-			balanceId: balanceId,
-			date: {
-				lt: startDate
-			},
-			received: false
-		}
-	});
-	return records;
-}
-
 export const load: PageServerLoad = async (event) => {
 	// get balance id from url
 	const { id } = event.params;
+	const session = await event.locals.getSession();
+
+	if (!session?.user) {
+		throw redirect(303, '/login');
+	}
 	// get end date from url
-	const from = event.url.searchParams.get('from');
+	let from = event.url.searchParams.get('from');
+	if (from === 'null') from = null;
 	const to = event.url.searchParams.get('to');
 
 	// Get balance from db
@@ -104,11 +108,14 @@ export const load: PageServerLoad = async (event) => {
 
 	// If balance doesn't exist, redirect to dashboard
 	if (!balance) {
-		return redirect(303, '/dashboard');
+		throw redirect(303, '/dashboard');
+	}
+
+	if (balance.userId !== session.user.id) {
+		throw redirect(303, '/dashboard');
 	}
 
 	const startDate = from ? new Date(from) : new Date();
-	// start date + 3 months
 	let endDate;
 	if (!to) {
 		endDate = new Date(startDate);
@@ -117,41 +124,88 @@ export const load: PageServerLoad = async (event) => {
 		endDate = new Date(to);
 	}
 
-	const records = await getRecordsBetweenDates(balance.id, startDate, endDate);
-	const recordsPending = await getRecordsNotReceived(balance.id, startDate);
+	let yesterday = new Date();
+	yesterday.setDate(yesterday.getDate() - 1);
+	yesterday = new Date(yesterday.toISOString().split('T')[0]);
+	let today = new Date();
+	today = new Date(today.toISOString().split('T')[0]);
+	console.log('today', today);
+	console.log('yesterday', yesterday);
+	console.log('startDate', startDate);
+	console.log('endDate', endDate);
+	const previousRecords = await getRecordsBetweenDates(
+		balance.id,
+		startDate,
+		yesterday,
+		false,
+		true
+	);
+	console.log('previousRecords', previousRecords.length);
+	const nextRecords = await getRecordsBetweenDates(balance.id, today, endDate, true, false);
+	console.log('nextRecords', nextRecords.length);
+	const recordsPending = await getRecordsBetweenDates(
+		balance.id,
+		new Date(0),
+		yesterday,
+		false,
+		false
+	);
+	console.log('recordsPending', recordsPending.length);
 
 	// Add to each record the balance at that moment
 	let currentBalance = balance.amount;
 
 	for (let record of recordsPending) {
+		var amount = record.amount;
 		if (!record.disabled) {
 			if (record.isExpense) {
 				currentBalance -= record.amount;
 			} else {
 				currentBalance += record.amount;
+			}
+		}
+		record.balanceAtRecord = currentBalance;
+	}
+	for (let record of nextRecords) {
+		if (!record.disabled) {
+			var amount = record.amount;
+			if (record.isExpense) {
+				currentBalance -= amount;
+			} else {
+				currentBalance += amount;
 			}
 		}
 		record.balanceAtRecord = currentBalance;
 	}
 
-	for (let record of records) {
-		if (!record.disabled) {
+	currentBalance = balance.amount;
+	for (let k = previousRecords.length - 1; k >= 0; k--) {
+		let record = previousRecords[k];
+		var amount = record.amount;
+		if (k !== previousRecords.length - 1) {
 			if (record.isExpense) {
-				currentBalance -= record.amount;
+				currentBalance += amount;
 			} else {
-				currentBalance += record.amount;
+				currentBalance -= amount;
 			}
 		}
 		record.balanceAtRecord = currentBalance;
 	}
+
+	// Merge records
+	const records = [...previousRecords, ...nextRecords];
 
 	// Get one record per day
 	let recordsMap = {
-		[startDate.toISOString().split('T')[0]]: balance.amount
+		//[startDate.toISOString().split('T')[0]]: balance.amount
 	};
 	for (let record of records) {
 		let date = record.date.toISOString().split('T')[0];
 		recordsMap[date] = record.balanceAtRecord;
+	}
+	// Add current balance if it's not already there
+	if (recordsMap[today.toISOString().split('T')[0]] === undefined) {
+		recordsMap[today.toISOString().split('T')[0]] = balance.amount;
 	}
 	let chartData = Object.keys(recordsMap).map((date) => {
 		return {
@@ -160,9 +214,32 @@ export const load: PageServerLoad = async (event) => {
 		};
 	});
 	chartData.sort((a, b) => a.date.getTime() - b.date.getTime());
+	if (chartData.length === 0) {
+		chartData.push({
+			date: startDate,
+			balanceAtRecord: balance.amount
+		});
+	} else {
+		// If first record is not the start date, add it
+		if (chartData[0].date.toISOString().split('T')[0] !== startDate.toISOString().split('T')[0]) {
+			chartData.unshift({
+				date: startDate,
+				balanceAtRecord: chartData[0].balanceAtRecord
+			});
+		}
+		// If last record is not the end date, add it
+		if (
+			chartData[chartData.length - 1].date.toISOString().split('T')[0] !==
+			endDate.toISOString().split('T')[0]
+		) {
+			chartData.push({
+				date: endDate,
+				balanceAtRecord: chartData[chartData.length - 1].balanceAtRecord
+			});
+		}
+	}
 	return {
 		balance,
-		records,
 		chartData,
 		from: startDate,
 		to: endDate,
@@ -178,7 +255,9 @@ export const load: PageServerLoad = async (event) => {
 			}
 			return acc;
 		}, 0),
-		recordsPending
+		recordsPending,
+		nextRecords,
+		previousRecords
 	};
 };
 
@@ -192,7 +271,7 @@ export const actions = {
 		const isExpense = data.get('is-expense') as string;
 		const description = data.get('description') as string;
 		const date = data.get('date') as string;
-		const repeat = data.get('repeat') as string;
+		const repeat = (data.get('repeat') as string) ?? 'never';
 		const endDate = data.get('end-date') as string;
 		const manualReceive = data.get('manual-receive') as string;
 		const noEndDate = data.get('no-end-date') as string;

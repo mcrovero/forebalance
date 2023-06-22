@@ -19,7 +19,8 @@ export const load: PageServerLoad = async (event) => {
 			data: {
 				userId,
 				amount: 0,
-				currency: 'USD'
+				currency: 'USD',
+				name: 'My Balance'
 			}
 		});
 		balances = [balance];
@@ -28,9 +29,8 @@ export const load: PageServerLoad = async (event) => {
 	// if only one balance, redirect to it
 	if (balances.length === 1) {
 		throw redirect(303, `/balances/${balances[0].id}`);
+	} else {
+		// if multiple balances, redirect to the first one
+		throw redirect(303, `/balances/${balances[0].id}`);
 	}
-
-	return {
-		balances
-	};
 };

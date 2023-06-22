@@ -25,6 +25,7 @@ CREATE TABLE `Balance` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `amount` INTEGER NOT NULL,
     `currency` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
     `lastUpdatedDate` DATETIME(3) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,

@@ -21,7 +21,7 @@
 		</NavBrand>
 		<div class="flex md:order-2 ml-auto space-x-4 items-center">
 			{#if data.user.premium < 2}
-				<Button href="/pricing" size="sm" color="primary" outline={true}>
+				<Button href="/pricing" size="sm" color="blue" outline={true}>
 					<Star class="w-5 h-5 mr-2" />
 					Upgrade
 				</Button>

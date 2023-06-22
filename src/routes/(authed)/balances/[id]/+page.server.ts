@@ -10,7 +10,6 @@ async function getRecordsBetweenDates(
 	withRecurrent = true,
 	received = false
 ) {
-	console.log('getRecordsBetweenDates', start, end, withRecurrent, received);
 	const records = await prisma.record.findMany({
 		where: {
 			balanceId: balanceId,
@@ -129,10 +128,6 @@ export const load: PageServerLoad = async (event) => {
 	yesterday = new Date(yesterday.toISOString().split('T')[0]);
 	let today = new Date();
 	today = new Date(today.toISOString().split('T')[0]);
-	console.log('today', today);
-	console.log('yesterday', yesterday);
-	console.log('startDate', startDate);
-	console.log('endDate', endDate);
 	const previousRecords = await getRecordsBetweenDates(
 		balance.id,
 		startDate,
@@ -140,9 +135,7 @@ export const load: PageServerLoad = async (event) => {
 		false,
 		true
 	);
-	console.log('previousRecords', previousRecords.length);
 	const nextRecords = await getRecordsBetweenDates(balance.id, today, endDate, true, false);
-	console.log('nextRecords', nextRecords.length);
 	const recordsPending = await getRecordsBetweenDates(
 		balance.id,
 		new Date(0),
@@ -150,7 +143,6 @@ export const load: PageServerLoad = async (event) => {
 		false,
 		false
 	);
-	console.log('recordsPending', recordsPending.length);
 
 	// Add to each record the balance at that moment
 	let currentBalance = balance.amount;
@@ -238,7 +230,15 @@ export const load: PageServerLoad = async (event) => {
 			});
 		}
 	}
+
+	const balances = await prisma.balance.findMany({
+		where: {
+			userId: session.user.id
+		}
+	});
+
 	return {
+		balances,
 		balance,
 		chartData,
 		from: startDate,
@@ -372,13 +372,17 @@ export const actions = {
 		const data = await request.formData();
 		const id = data.get('balanceId') as string;
 		const amount = data.get('amount') as string;
+		const currency = data.get('currency') as string;
+		const name = data.get('name') as string;
 
 		await prisma.balance.update({
 			where: {
 				id: Number(id)
 			},
 			data: {
-				amount: Number(amount)
+				amount: Number(amount),
+				currency,
+				name
 			}
 		});
 
@@ -451,5 +455,38 @@ export const actions = {
 		return {
 			status: 200
 		};
+	},
+	async changeBalance({ request, params, locals }) {
+		console.log('changeBalance action');
+		const session = await locals.getSession();
+		if (!session?.user) throw redirect(303, '/login');
+		const userId = session.user.id;
+		const data = await request.formData();
+		const id = data.get('balanceId') as string;
+		if (id === 'new') {
+			const balance = await prisma.balance.create({
+				data: {
+					userId,
+					amount: 0,
+					currency: 'USD',
+					name: 'My new balance'
+				}
+			});
+			throw redirect(303, `/balances/${balance.id}`);
+		}
+		throw redirect(303, `/balances/${id}`);
+	},
+	async deleteBalance({ request, params, locals }) {
+		console.log('deleteBalance action');
+		const session = await locals.getSession();
+		if (!session?.user) throw redirect(303, '/login');
+		const data = await request.formData();
+		const id = data.get('balanceId') as string;
+		await prisma.balance.delete({
+			where: {
+				id: Number(id)
+			}
+		});
+		throw redirect(303, `/dashboard`);
 	}
 };

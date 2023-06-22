@@ -7,6 +7,8 @@
 		Hr,
 		Input,
 		Label,
+		Modal,
+		Select,
 		Star,
 		Table,
 		TableBody,
@@ -14,6 +16,8 @@
 		TableHeadCell
 	} from 'flowbite-svelte';
 	import Plus from 'svelte-material-icons/Plus.svelte';
+	import Delete from 'svelte-material-icons/Delete.svelte';
+	import AlertBoxOutline from 'svelte-material-icons/AlertBoxOutline.svelte';
 
 	import AddRecord from './add-record.svelte';
 	import Chart from './chart.svelte';
@@ -24,66 +28,104 @@
 	let isLoading = false;
 	let isEditingBalance = false;
 	let showModal = false;
+	let showModalDelete = false;
 
 	let from = data.from.toISOString().split('T')[0];
 	let to = data.to.toISOString().split('T')[0];
+
+	let balances = data.balances ?? [];
+
+	let historyEnabled = data.user.premium > 0;
+	let multipleBalancesEnabled = data.user.premium > 1;
 </script>
 
 <!-- full width -->
 <div class="flex flex-col w-full space-y-4 justify-stretch">
-	<!-- Two inputs to adjust from and to dates on the right side -->
-	<form
-		action="?/updateDate"
-		method="POST"
-		use:enhance={() => {
-			isLoading = true;
-			return async ({ update }) => {
-				await update();
-				isLoading = false;
-			};
-		}}
-	>
-		<div class="flex flex-col gap-4 items-stretch md:flex-row md:justify-end md:items-end">
-			<input type="hidden" name="balanceId" value={data.balance.id} />
-			<Label class="space-y-2">
-				<div class="flex flex-row items-center justify-start">
-					{#if data.user.premium === 0}
-						<Star class="text-blue-500" />
-					{/if}
-					<span>From</span>
-					<!--Premium feature-->
-				</div>
-				<!-- on hover show tooltip with info that this is a premium feature -->
-				<Input
-					disabled={data.user.premium === 0}
-					type="date"
-					name="from"
-					required
-					bind:value={from}
-					max={new Date().toISOString().split('T')[0]}
-					alt="This is a premium feature"
-				/>
-			</Label>
-			<Label class="space-y-2">
-				<span>To</span>
-				<Input
-					type="date"
-					name="to"
-					required
-					bind:value={to}
-					min={new Date().toISOString().split('T')[0]}
-				/>
-			</Label>
-			<Button type="submit" outline={true} disabled={isLoading}>Update</Button>
+	<div class="flex flex-row justify-between items-center">
+		<!-- Select to change balance and button to add new balance -->
+		<div class="flex flex-row justify-between items-center">
+			<form action="?/changeBalance" method="POST">
+				<Select
+					name="balanceId"
+					bind:value={data.balance.id}
+					class="w-full max-w-full"
+					onchange="this.form.submit()"
+					disabled={!multipleBalancesEnabled}
+				>
+					{#each balances as balance}
+						<option value={balance.id}>{balance.name}</option>
+					{/each}
+					<!-- empty option with separator -->
+					<option disabled>──────────</option>
+					<!-- Option to add new balance -->
+					<option value="new">+ Add new balance</option>
+				</Select>
+			</form>
+			{#if !multipleBalancesEnabled}
+				<Star class="text-blue-500" />
+			{/if}
 		</div>
-	</form>
+
+		<!-- Two inputs to adjust from and to dates on the right side -->
+		<form
+			action="?/updateDate"
+			method="POST"
+			use:enhance={() => {
+				isLoading = true;
+				return async ({ update }) => {
+					await update();
+					isLoading = false;
+				};
+			}}
+		>
+			<div class="flex flex-col gap-4 items-stretch md:flex-row md:justify-end md:items-end">
+				<input type="hidden" name="balanceId" value={data.balance.id} />
+				<Label class="space-y-2">
+					<div class="flex flex-row items-center justify-start">
+						{#if !historyEnabled}
+							<Star class="text-blue-500" />
+						{/if}
+						<span>From</span>
+					</div>
+					<!-- on hover show tooltip with info that this is a premium feature -->
+					<Input
+						disabled={!historyEnabled}
+						type="date"
+						name="from"
+						required
+						bind:value={from}
+						max={new Date().toISOString().split('T')[0]}
+					/>
+				</Label>
+				<Label class="space-y-2">
+					<span>To</span>
+					<Input
+						type="date"
+						name="to"
+						required
+						bind:value={to}
+						min={new Date().toISOString().split('T')[0]}
+					/>
+				</Label>
+				<Button type="submit" outline={true} disabled={isLoading}>Change dates</Button>
+			</div>
+		</form>
+	</div>
 	<Hr />
 	<Chart chartData={data.chartData} />
 	<div class="flex flex-col gap-4 items-stretch sm:flex-row sm:justify-stretch sm:items-stretch">
 		<Card class="flex-grow w-full max-w-full">
 			<div class="flex flex-col space-y-2">
-				<span class="text-lg font-medium text-gray-900 dark:text-white">Balance</span>
 				{#if isEditingBalance}
+					<Button
+						color="red"
+						outline={true}
+						class="w-full max-w-full"
+						on:click={() => (showModalDelete = true)}
+					>
+						<Delete class="w-5 h-5 text-red" />
+						Delete balance
+					</Button>
 					<form
 						action="?/editBalance"
 						method="POST"
@@ -98,19 +140,39 @@
 					>
 						<input type="hidden" name="balanceId" value={data.balance.id} />
 						<Input
-							type="number"
-							name="amount"
-							placeholder="1000"
+							type="text"
+							name="name"
+							placeholder="Name"
 							required
-							bind:value={data.balance.amount}
-							class="mb-4"
+							bind:value={data.balance.name}
+							class="mb-2"
 						/>
-						<Button type="button" outline={true} on:click={() => (isEditingBalance = false)}
-							>Cancel</Button
-						>
-						<Button type="submit" disabled={isLoading}>Update</Button>
+						<div class="flex flex-row items-center justify-start gap-2 mb-2">
+							<Input
+								type="number"
+								name="amount"
+								placeholder="1000"
+								required
+								bind:value={data.balance.amount}
+							/>
+							<Select name="currency" required bind:value={data.balance.currency}>
+								<option value="EUR">EUR</option>
+								<option value="USD">USD</option>
+								<option value="GBP">GBP</option>
+							</Select>
+						</div>
+						<div class="flex flex-row justify-end gap-2">
+							<Button
+								type="button"
+								class="w-full max-w-full"
+								outline={true}
+								on:click={() => (isEditingBalance = false)}>Cancel</Button
+							>
+							<Button type="submit" disabled={isLoading} class="w-full max-w-full">Update</Button>
+						</div>
 					</form>
 				{:else}
+					<span class="text-lg font-medium text-gray-900 dark:text-white">{data.balance.name}</span>
 					<span class="text-2xl font-bold">{data.balance.amount} {data.balance.currency}</span>
 					<Button
 						outline={true}
@@ -203,3 +265,18 @@
 </div>
 
 <AddRecord balance={data.balance} bind:showModal premium={data.user.premium} />
+
+<Modal bind:open={showModalDelete} size="xs" autoclose={false}>
+	<form action="?/deleteBalance" method="POST">
+		<div class="flex flex-col items-center space-y-5">
+			<AlertBoxOutline class="w-12 h-12 text-red-500" />
+			<h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+				Are you sure you want to delete this balance?
+			</h3>
+			<span>It will be deleted permanently.</span>
+			<input type="hidden" name="balanceId" value={data.balance.id} />
+			<Button color="red" class="mr-2" type="submit">Yes, I'm sure</Button>
+			<Button color="alternative" on:click={() => (showModalDelete = false)}>No, cancel</Button>
+		</div>
+	</form>
+</Modal>

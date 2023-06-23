@@ -33,6 +33,7 @@ export async function POST({ request }) {
 				},
 				data: {
 					stripeCustomerId: event.data.object.customer,
+					hasStripeCustomer: true,
 					stripeSubscriptionId: event.data.object.subscription
 				}
 			});
@@ -63,6 +64,19 @@ export async function POST({ request }) {
 					stripeSubscriptionId: event.data.object.id,
 					stripeSubscriptionStatus: event.data.object.status,
 					premium: premiumTier
+				}
+			});
+			break;
+		case 'customer.subscription.deleted':
+			// Subscription was deleted
+			await prisma.user.update({
+				where: {
+					stripeCustomerId: event.data.object.customer
+				},
+				data: {
+					stripeSubscriptionId: null,
+					stripeSubscriptionStatus: null,
+					premium: 0
 				}
 			});
 			break;

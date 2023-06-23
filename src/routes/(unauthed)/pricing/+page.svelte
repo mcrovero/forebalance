@@ -7,7 +7,6 @@
 	const { user } = data;
 
 	const alreadyPremium = user && user.premium > 0;
-	console.log(user.premium);
 </script>
 
 <section class="bg-white dark:bg-gray-900">

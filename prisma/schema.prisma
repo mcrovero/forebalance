@@ -23,6 +23,7 @@ model User {
   premium                  Int       @default(0)
   stripeSessionId          String?   @unique @default(cuid())
   stripeCustomerId         String?   @unique @default(cuid())
+  hasStripeCustomer        Boolean   @default(false)
   stripeSubscriptionId     String?   @unique @default(cuid())
   stripeSubscriptionStatus String?
   balances                 Balance[]

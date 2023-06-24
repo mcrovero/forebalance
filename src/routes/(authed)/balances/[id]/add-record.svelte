@@ -134,14 +134,19 @@
 				{/if}
 			</Label>
 		</div>
-		<!-- Checkbox auto receive with description and label -->
-		<Label class="space-y-2">
-			<div class="flex flex-row justify-stretch space-x-2">
-				<Checkbox type="checkbox" name="manual-receive" bind:checked={manualReceive} class="w-full"
-					>Does this payment need to be accepted manually?</Checkbox
-				>
-			</div>
-		</Label>
+		{#if repeat === 'never'}
+			<!-- Checkbox auto receive with description and label -->
+			<Label class="space-y-2">
+				<div class="flex flex-row justify-stretch space-x-2">
+					<Checkbox
+						type="checkbox"
+						name="manual-receive"
+						bind:checked={manualReceive}
+						class="w-full">Does this payment need to be accepted manually?</Checkbox
+					>
+				</div>
+			</Label>
+		{/if}
 
 		<!-- submit -->
 		<div class="flex flex-row justify-center space-x-2">

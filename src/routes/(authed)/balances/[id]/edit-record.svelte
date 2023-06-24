@@ -99,19 +99,21 @@
 				/>
 			</Label>
 		</div>
-		<!-- Checkbox auto receive with description and label -->
-		<Label class="space-y-2">
-			<div class="flex flex-row justify-stretch space-x-2">
-				<Checkbox
-					type="checkbox"
-					name="auto-receive"
-					bind:checked={record.autoReceive}
-					class="w-full"
-				>
-					Automatically receive
-				</Checkbox>
-			</div>
-		</Label>
+		{#if record.recurrentId === null}
+			<!-- Checkbox auto receive with description and label -->
+			<Label class="space-y-2">
+				<div class="flex flex-row justify-stretch space-x-2">
+					<Checkbox
+						type="checkbox"
+						name="auto-receive"
+						bind:checked={record.autoReceive}
+						class="w-full"
+					>
+						Automatically receive
+					</Checkbox>
+				</div>
+			</Label>
+		{/if}
 
 		<!-- submit -->
 		<div class="flex flex-row justify-center space-x-2">

@@ -8,7 +8,8 @@ async function getRecordsBetweenDates(
 	start: Date,
 	end: Date,
 	withRecurrent = true,
-	received = false
+	received = false,
+	autoReceive: boolean | null = null
 ) {
 	const records = await prisma.record.findMany({
 		where: {
@@ -17,7 +18,8 @@ async function getRecordsBetweenDates(
 				gte: start,
 				lte: end
 			},
-			received
+			received,
+			autoReceive: autoReceive !== null ? autoReceive : undefined
 		},
 		orderBy: {
 			date: 'asc'
@@ -30,6 +32,7 @@ async function getRecordsBetweenDates(
 			startDate: {
 				lte: end
 			},
+			autoReceive: autoReceive !== null ? autoReceive : undefined,
 			OR: [
 				{
 					endDate: null
@@ -56,7 +59,7 @@ async function getRecordsBetweenDates(
 					description,
 					date,
 					received: false,
-					autoReceive,
+					autoReceive: true,
 					balanceId,
 					disabled: false,
 					createdAt: new Date(),
@@ -128,6 +131,41 @@ export const load: PageServerLoad = async (event) => {
 	yesterday = new Date(yesterday.toISOString().split('T')[0]);
 	let today = new Date();
 	today = new Date(today.toISOString().split('T')[0]);
+
+	// Receive old records with autoReceive
+	const recordsToReceive = await getRecordsBetweenDates(
+		balance.id,
+		new Date(0),
+		yesterday,
+		false,
+		false,
+		true
+	);
+	for (let record of recordsToReceive) {
+		await prisma.record.update({
+			where: {
+				id: record.id
+			},
+			data: {
+				received: true
+			}
+		});
+		if (record.isExpense) {
+			balance.amount -= record.amount;
+		}
+		if (!record.isExpense) {
+			balance.amount += record.amount;
+		}
+		await prisma.balance.update({
+			where: {
+				id: balance.id
+			},
+			data: {
+				amount: balance.amount
+			}
+		});
+	}
+
 	const previousRecords = await getRecordsBetweenDates(
 		balance.id,
 		startDate,
@@ -287,7 +325,7 @@ export const actions = {
 					description: description,
 					date: new Date(date),
 					received: false,
-					autoReceive: false,
+					autoReceive: manualReceive !== 'on',
 					balance: {
 						connect: {
 							id: Number(balanceId)
@@ -304,7 +342,7 @@ export const actions = {
 					startDate: new Date(date),
 					frequency: repeat,
 					endDate: noEndDate === 'on' ? null : new Date(endDate),
-					autoReceive: manualReceive === 'on',
+					autoReceive: false,
 					balance: {
 						connect: {
 							id: Number(balanceId)
@@ -336,7 +374,9 @@ export const actions = {
 		if (description !== undefined) updatedRecord['description'] = description;
 		if (date !== undefined) updatedRecord['date'] = new Date(date);
 		if (amount !== undefined) updatedRecord['amount'] = Number(amount);
-		if (autoReceive !== undefined) updatedRecord['autoReceive'] = autoReceive === 'on';
+		// Do not update autoReceive in recurrent records
+		if (autoReceive !== undefined && !recurrentId)
+			updatedRecord['autoReceive'] = autoReceive === 'on';
 
 		if (recurrentId) {
 			await prisma.recurrent.update({

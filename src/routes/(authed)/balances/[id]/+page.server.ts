@@ -126,42 +126,56 @@ export const load: PageServerLoad = async (event) => {
 		endDate = new Date(to);
 	}
 
-	let yesterday = new Date();
-	yesterday.setDate(yesterday.getDate() - 1);
-	yesterday = new Date(yesterday.toISOString().split('T')[0]);
 	let today = new Date();
 	today = new Date(today.toISOString().split('T')[0]);
+	let yesterday = new Date(today);
+	yesterday.setDate(yesterday.getDate() - 1);
 
-	// Receive old records with autoReceive
-	const recordsToReceive = await getRecordsBetweenDates(
-		balance.id,
-		new Date(0),
-		yesterday,
-		false,
-		false,
-		true
-	);
-	for (let record of recordsToReceive) {
-		await prisma.record.update({
-			where: {
-				id: record.id
-			},
-			data: {
-				received: true
+	let lastUpdatedDate = balance.lastUpdatedDate;
+	// For the first time, update from 2 days ago
+	if (lastUpdatedDate === null) {
+		lastUpdatedDate = new Date(yesterday);
+		lastUpdatedDate.setDate(lastUpdatedDate.getDate() - 2);
+	}
+	let updateDateFrom = new Date(lastUpdatedDate);
+	updateDateFrom.setDate(updateDateFrom.getDate() + 1);
+	if (updateDateFrom <= yesterday) {
+		console.log('updating balance');
+		// Receive old records with autoReceive
+		const recordsToReceive = await getRecordsBetweenDates(
+			balance.id,
+			updateDateFrom,
+			yesterday,
+			true,
+			false,
+			true
+		);
+		for (let record of recordsToReceive) {
+			if (!record.recurrentId) {
+				await prisma.record.update({
+					where: {
+						id: record.id
+					},
+					data: {
+						received: true
+					}
+				});
 			}
-		});
-		if (record.isExpense) {
-			balance.amount -= record.amount;
+			if (record.isExpense) {
+				balance.amount -= record.amount;
+			}
+			if (!record.isExpense) {
+				balance.amount += record.amount;
+			}
 		}
-		if (!record.isExpense) {
-			balance.amount += record.amount;
-		}
+
 		await prisma.balance.update({
 			where: {
 				id: balance.id
 			},
 			data: {
-				amount: balance.amount
+				amount: balance.amount,
+				lastUpdatedDate: yesterday
 			}
 		});
 	}
@@ -342,7 +356,7 @@ export const actions = {
 					startDate: new Date(date),
 					frequency: repeat,
 					endDate: noEndDate === 'on' ? null : new Date(endDate),
-					autoReceive: false,
+					autoReceive: true,
 					balance: {
 						connect: {
 							id: Number(balanceId)

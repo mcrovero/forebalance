@@ -20,7 +20,8 @@
 	export let premium = 0;
 	export let showModal = false;
 
-	let recurrentEnabled = premium > 0;
+	let premiumAvailable = false;
+	let recurrentEnabled = premium > 0 || !premiumAvailable;
 
 	// If repeat is never then disable endDate
 	$: if (repeat === 'never' || noEndDate === true) {

@@ -8,6 +8,7 @@
 	export let data;
 
 	let subscriptionActive = data.user.premium > 0;
+	let premiumAvailable = false;
 </script>
 
 <div class="flex flex-col min-h-screen">
@@ -20,19 +21,21 @@
 			>
 		</NavBrand>
 		<div class="flex md:order-2 ml-auto space-x-4 items-center">
-			{#if data.user.premium < 2}
-				<Button href="/pricing" size="sm" color="blue" outline={true}>
-					<Star class="w-5 h-5 mr-2" />
-					Upgrade
-				</Button>
-			{:else}
-				<Star class="w-5 h-5 mr-2 text-primary-500" />
+			{#if premiumAvailable}
+				{#if data.user.premium < 2}
+					<Button href="/pricing" size="sm" color="blue" outline={true}>
+						<Star class="w-5 h-5 mr-2" />
+						Upgrade
+					</Button>
+				{:else}
+					<Star class="w-5 h-5 mr-2 text-primary-500" />
+				{/if}
 			{/if}
 
 			<!-- if user is logged in, show avatar and dropdown menu -->
 			<Avatar id="avatar-menu" src={data.user.image ?? ''} />
 			<Dropdown placement="bottom" triggeredBy="#avatar-menu">
-				{#if subscriptionActive}
+				{#if subscriptionActive && premiumAvailable}
 					<form action="/upgrade/portal" method="post">
 						<DropdownItem type="submit">Manage subscription</DropdownItem>
 					</form>

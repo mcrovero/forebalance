@@ -37,6 +37,8 @@
 
 	let historyEnabled = data.user.premium > 0;
 	let multipleBalancesEnabled = data.user.premium > 1;
+
+	let premiumAvailable = false;
 </script>
 
 <!-- full width -->
@@ -50,7 +52,7 @@
 					bind:value={data.balance.id}
 					class="w-full max-w-full"
 					onchange="this.form.submit()"
-					disabled={!multipleBalancesEnabled}
+					disabled={!multipleBalancesEnabled && premiumAvailable}
 				>
 					{#each balances as balance}
 						<option value={balance.id}>{balance.name}</option>
@@ -61,7 +63,7 @@
 					<option value="new">+ Add new balance</option>
 				</Select>
 			</form>
-			{#if !multipleBalancesEnabled}
+			{#if !multipleBalancesEnabled && premiumAvailable}
 				<Star class="text-blue-500" />
 			{/if}
 		</div>
@@ -82,14 +84,14 @@
 				<input type="hidden" name="balanceId" value={data.balance.id} />
 				<Label class="space-y-2">
 					<div class="flex flex-row items-center justify-start">
-						{#if !historyEnabled}
+						{#if !historyEnabled && premiumAvailable}
 							<Star class="text-blue-500" />
 						{/if}
 						<span>From</span>
 					</div>
 					<!-- on hover show tooltip with info that this is a premium feature -->
 					<Input
-						disabled={!historyEnabled}
+						disabled={!historyEnabled && premiumAvailable}
 						type="date"
 						name="from"
 						required

@@ -54,13 +54,8 @@
 				<FooterLink href="/pricing">Pricing</FooterLink>
 				<FooterLink href="/contact">Contact</FooterLink>
 				<FooterLink href="/tos">Terms of Service</FooterLink>
-				<a
-					href="https://www.iubenda.com/privacy-policy/80584291"
-					class="iubenda-black iubenda-noiframe iubenda-embed iubenda-noiframe"
-					title="Privacy Policy"
-				>
-					Privacy Policy
-				</a>
+				<FooterLink href="/privacy">Privacy Policy</FooterLink>
+				
 				<script type="text/javascript">
 					(function (w, d) {
 						var loader = function () {
